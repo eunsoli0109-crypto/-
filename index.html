@@ -53,10 +53,10 @@
     }
 
     .input-group {
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
-    input[type="text"] {
+    input[type="text"], input[type="password"] {
       width: 100%;
       padding: 14px;
       border: 2px solid #eee;
@@ -67,7 +67,7 @@
       text-align: center;
     }
 
-    input[type="text"]:focus {
+    input[type="text"]:focus, input[type="password"]:focus {
       border-color: var(--primary-color);
     }
 
@@ -82,6 +82,7 @@
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.2s;
+      margin-top: 8px;
     }
 
     button:hover {
@@ -165,14 +166,17 @@
 
 <div class="container">
   <h1>🎁 계곡 여행 마니또 </h1>
-  <p class="subtitle">이름을 입력하여 당신의 마니또와 미션을 확인하세요!</p>
+  <p class="subtitle">이름과 비밀번호를 입력하여 결과를 확인하세요!</p>
 
   <div class="input-group">
-    <input type="text" id="username" placeholder="이름을 입력하세요" onkeyup="if(window.event.keyCode==13){checkManitto()}">
+    <input type="text" id="username" placeholder="이름을 입력하세요">
+  </div>
+  <div class="input-group">
+    <input type="password" id="userpw" placeholder="비밀번호 4자리 입력" onkeyup="if(window.event.keyCode==13){checkManitto()}">
   </div>
   <button onclick="checkManitto()">결과 확인하기</button>
 
-  <div id="errorMsg" class="error-msg">명단에 없는 이름입니다. 정확히 입력해 주세요.</div>
+  <div id="errorMsg" class="error-msg">이름이나 비밀번호가 올바르지 않습니다.</div>
 
   <div id="resultCard" class="result-card">
     <div class="result-box">
@@ -203,7 +207,16 @@
     "김보연", "손채연", "신의도", "윤시현", "윤찬승", "정현준"
   ];
 
-  // 2. 지정해 주신 미션 18개
+  // 2. 개별 4자리 비밀번호 설정
+  const PASSWORDS = {
+    "원은솔": "1024", "김동규": "2841", "강민호": "3910", "김태원": "4523",
+    "김민솔": "5812", "배찬율": "6194", "김규인": "7305", "김규형": "8416",
+    "김덕양": "9237", "도지혁": "5120", "이가을": "6834", "박민순": "7419",
+    "김보연": "8295", "손채연": "9031", "신의도": "1482", "윤시현": "2657",
+    "윤찬승": "3709", "정현준": "4862"
+  };
+
+  // 3. 미션 18개
   const MISSIONS = [
     "하루 종일 마니또를 이름 아닌 별명이나 애칭으로 부르기",
     "마니또 대신 술 1병 이상 대신 마셔주기",
@@ -236,7 +249,7 @@
     let names = [...PARTICIPANTS];
     let shuffled = [...PARTICIPANTS];
     
-    let seed = 00875; // 
+    let seed = 875;
 
     let isValid = false;
     while (!isValid) {
@@ -245,18 +258,15 @@
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       
-      // 본인이 본인을 뽑지 않도록 방지
       isValid = names.every((name, idx) => name !== shuffled[idx]);
     }
 
-    // 미션 목록 무작위 셔플
     let missionPool = [...MISSIONS];
     for (let i = missionPool.length - 1; i > 0; i--) {
       const j = Math.floor(seededRandom(seed++) * (i + 1));
       [missionPool[i], missionPool[j]] = [missionPool[j], missionPool[i]];
     }
 
-    // 1대1 매칭 및 미션 1개씩 부여
     names.forEach((name, idx) => {
       matchResults[name] = {
         target: shuffled[idx],
@@ -267,10 +277,11 @@
 
   function checkManitto() {
     const inputName = document.getElementById("username").value.trim();
+    const inputPw = document.getElementById("userpw").value.trim();
     const errorMsg = document.getElementById("errorMsg");
     const resultCard = document.getElementById("resultCard");
 
-    if (matchResults[inputName]) {
+    if (matchResults[inputName] && PASSWORDS[inputName] === inputPw) {
       errorMsg.style.display = "none";
       document.getElementById("targetName").innerText = `${matchResults[inputName].target} 님`;
       document.getElementById("missionText").innerText = matchResults[inputName].mission;
@@ -282,6 +293,10 @@
   }
 
   generateMatches();
+</script>
+
+</body>
+</html>
 </script>
 
 </body>
